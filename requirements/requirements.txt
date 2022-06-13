@@ -1,0 +1,7 @@
+moviepy==1.0.3
+praw==7.6.0
+gTTS==2.2.4
+better_profanity==0.7.0
+pylint==2.14.1
+pytest==7.1.2
+pygame==2.1.2

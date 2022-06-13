@@ -1,0 +1,16 @@
+venv
+secrets/*
+!secrets/.keep
+videos/*
+!videos/.keep
+output/*
+!output/.keep
+!secrets/default_credentials.json
+__pycache__
+AutomatedTikToks.code-workspace
+*.mp3
+*.mp4
+*.png
+*.json
+!secrets/default_credentials.json
+create_content.py
