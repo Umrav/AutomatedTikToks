@@ -40,7 +40,7 @@ class ContentGenerator:
         profanity.load_censor_words()
 
     def get_top_advice_posts(self,
-                             sub_name: str = 'AmItheAsshole',
+                             sub_name: str = 'amitheasshole',
                              post_limit: int = 1,
                              time_filter: str = 'day') -> List[Dict[str, str]]:
         '''Given a reddit subreddit name that is advice format (long postbody) and time filter
@@ -61,8 +61,8 @@ class ContentGenerator:
             post_selftext = submission.selftext
 
             top_posts.append({
-                'title': post_title,
-                'postbody': post_selftext,
+                'title': profanity.censor(post_title),
+                'postbody': profanity.censor(post_selftext),
             })
 
         return top_posts
@@ -71,7 +71,7 @@ class ContentGenerator:
                           sub_name: str = 'askreddit',
                           post_limit: int = 1,
                           time_filter: str = 'day',
-                          comment_score_limit: int = 1000,
+                          comment_score_min: int = 1000,
                           comment_char_limit: int = 250,
                           comment_reply_threshold: int = 50,
                           comment_sort: str = 'confidence') -> List[Dict[str, Union[str, List[str]]]]:
@@ -83,25 +83,25 @@ class ContentGenerator:
         :param post_limit: number of posts to return for provided time filter (default: 1)
         :param time_filter: time filter for post, Can be one of: "all", "day", "hour", "month",
                             "week", or "year" (default: "day")
-        :param comment_sort: sort order for comments, Can be one of "confidence",
-                             "controversial", "new", "old", "q&a", or "top" (default: "confidence")
-        :param comment_score_limit: score limit for comment, only comments above limit will be returned (default: 1000)
+        :param comment_score_min: score limit for comment, only comments above limit will be returned (default: 1000)
         :param comment_char_limit: char limit for comment, only comments less than limit included (default: 250)
                                    stylistic choice to prevent long posts dominating the video, can be changed
         :param comment_reply_threshold: comment reply count threshold before being included in output (default: 50)
+        :param comment_sort: sort order for comments, Can be one of "confidence",
+                             "controversial", "new", "old", or "top" (default: "confidence")
         :return: List of dictionaries containing the subreddit's top post "title" and "comments" for provided time filter
         '''
         subreddit = self.client.subreddit(sub_name)
         top_posts = []
 
         for submission in subreddit.top(limit=post_limit, time_filter=time_filter):
-            post_title = submission.title
+            post_title = profanity.censor(submission.title)
             submission.comment_sort = comment_sort
             submission.comments.replace_more(threshold=comment_reply_threshold)
 
             comments = []
             for top_level_comment in submission.comments:
-                if top_level_comment.score > comment_score_limit and \
+                if top_level_comment.score > comment_score_min and \
                     len(top_level_comment.body) <= comment_char_limit:
                     comments.append({
                         'comment': profanity.censor(top_level_comment.body),
