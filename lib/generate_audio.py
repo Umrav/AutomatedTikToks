@@ -72,7 +72,7 @@ class AudioGenerator:
                                 output_filepath: str,
                                 filename: str,
                                 audio_accent: str = 'com',
-                                multiplier: float = 1.2) -> str:
+                                multiplier: float = 1.25) -> str:
         '''Generate audio for the provided text and store the generated audio
         locally in the provided output_filepath.
         

@@ -21,6 +21,7 @@ class VideoGenerator:
         :param videos_path: folder location where background videos are stored
         '''
         self.vid_path = videos_path
+        self.title_buffer = .8
 
     def pick_random_video(self) -> str:
         '''Randomly pick a background file for use in TikTok video.
@@ -149,12 +150,12 @@ class VideoGenerator:
         #setting to harcoded location for stylistic purposes
         title_textclip = title_textclip.set_start(0)
         # stylistic add 1 second
-        title_textclip = title_textclip.set_position(('center', 300)).set_duration(title_duration + 1)
+        title_textclip = title_textclip.set_position(('center', 300)).set_duration(title_duration + self.title_buffer)
         title_textclip = title_textclip.set_audio(title_audioclip)
 
         video = CompositeVideoClip([video, title_textclip]).set_duration(video.duration)
 
-        return video, title_duration + 1
+        return video, title_duration + self.title_buffer
 
     def write_multi_text_to_video(self,
                                   video: VideoFileClip,
