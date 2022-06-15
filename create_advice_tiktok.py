@@ -10,16 +10,17 @@ from lib.generate_audio import AudioGenerator
 from lib.generate_video import VideoGenerator
 from config.base import CONFIG
 
+
 def create_parser() -> ArgumentParser:
     '''Generate Argparse instance for use in script. The function
     will define various options that can be used to customize the output
     of the Advice Style TikTok.
-    
+
     :return: customized argparse instance
     '''
     parser = ArgumentParser('CreateAdviceTikTok',
-                             description='Script generates Advice style video'
-                                         ' for upload to TikTok.')
+                            description='Script generates Advice style video'
+                            ' for upload to TikTok.')
     parser.add_argument('--reddit_json',
                         default='reddit_advice_content.json',
                         type=str,
@@ -43,6 +44,7 @@ def create_parser() -> ArgumentParser:
 
     return parser
 
+
 def generate_advice_tiktok_video(args: Namespace) -> NoReturn:
     '''Given the script arguments, generate both the audio and video
     for TikTok for each post in the json provided. The output files are
@@ -64,7 +66,7 @@ def generate_advice_tiktok_video(args: Namespace) -> NoReturn:
 
             audio_info = audio_gen.generate_audio_from_advice_submission(output_folder,
                                                                          advice_post)
-            
+
             video_gen.generate_video_from_advice_submission(audio_info,
                                                             output_folder,
                                                             char_count=args.char_count,

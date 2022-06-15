@@ -8,12 +8,14 @@ from uuid import uuid4
 import praw
 from better_profanity import profanity
 
+
 class ContentGenerator:
     '''Class based utility to query Reddit api for various subreddit
     for their top posts and comments. The class will organize
     posts into dicts with the post title & the top comments filtered
     by Score.
     '''
+
     def __init__(self,
                  client_id: str,
                  client_secret: str,
@@ -22,13 +24,13 @@ class ContentGenerator:
         '''initialize the Content Generation Class for use. The method
         initializes an instance of PRAW class to be used to query the Reddit
         API for subreddit posts.
-        
+
         :param client_id: Reddit Client ID
         :param client_secret: Reddit Client Secret
         :param username: reddit account username
         :param password: reddit account password
         '''
-        
+
         self.client = praw.Reddit(
             client_id=client_id,
             client_secret=client_secret,
@@ -102,12 +104,12 @@ class ContentGenerator:
             comments = []
             for top_level_comment in submission.comments:
                 if top_level_comment.score > comment_score_min and \
-                    len(top_level_comment.body) <= comment_char_limit:
+                        len(top_level_comment.body) <= comment_char_limit:
                     comments.append({
                         'comment': profanity.censor(top_level_comment.body),
                         'comment_score': top_level_comment.score,
                     })
-            
+
             top_posts.append({
                 'title': post_title,
                 'comments': comments,

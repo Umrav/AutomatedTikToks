@@ -5,3 +5,4 @@ better_profanity==0.7.0
 pylint==2.14.1
 pytest==7.1.2
 pygame==2.1.2
+autopep8==1.6.0

@@ -8,16 +8,17 @@ from argparse import ArgumentParser, Namespace
 from lib.generate_reddit_content import ContentGenerator
 from config.base import CONFIG
 
+
 def create_parser() -> ArgumentParser:
     '''Generate Argparse instance for use in script. The function
     will define various options that can be used to customize the output
     of the reddit content json.
-    
+
     :return: customized argparse instance
     '''
     parser = ArgumentParser('CreateRedditContent',
-                             description='Script generate reddit content json for'
-                                         ' use to create TikTok Videos.')
+                            description='Script generate reddit content json for'
+                            ' use to create TikTok Videos.')
     parser.add_argument('--credential_json',
                         default=CONFIG['reddit_credential'],
                         type=str,
@@ -42,7 +43,8 @@ def create_parser() -> ArgumentParser:
     parser.add_argument('--time_filter',
                         type=str,
                         default="day",
-                        choices=['all', 'day', 'hour', 'month', 'week', 'year'],
+                        choices=['all', 'day', 'hour',
+                                 'month', 'week', 'year'],
                         help='time filter for top posts')
     parser.add_argument('--comment_score_min',
                         type=int,
@@ -55,30 +57,33 @@ def create_parser() -> ArgumentParser:
     parser.add_argument('--comment_sort',
                         type=str,
                         default='confidence',
-                        choices=['confidence', 'controversial', 'new', 'old', 'top'],
+                        choices=['confidence', 'controversial',
+                                 'new', 'old', 'top'],
                         help='heurisitic used to sort comments (QnA only)')
-    
+
     return parser
+
 
 def generate_reddit_json(args: Namespace) -> NoReturn:
     '''Given the inputs from the script args, create an instance of
     ContentGenerator and use it to create a json with content
     using the provided inputs.
-    
+
     :param args: arguments passed to script
     :return: NoReturn
     '''
     try:
         with open(args.credential_json, 'r') as json_file:
             credential_info = json.load(json_file)
-        
+
         content_gen = ContentGenerator(**credential_info)
 
         if args.subreddit_type == 'qna':
             output_filepath = 'reddit_qna_content.json'
 
             if args.output_folder:
-                output_filepath = join(args.output_folder, 'reddit_qna_content.json')
+                output_filepath = join(
+                    args.output_folder, 'reddit_qna_content.json')
 
             qna_content = content_gen.get_top_qna_posts(sub_name=args.subreddit,
                                                         post_limit=args.post_limit,
@@ -86,7 +91,7 @@ def generate_reddit_json(args: Namespace) -> NoReturn:
                                                         comment_score_min=args.comment_score_min,
                                                         comment_char_limit=args.comment_char_limit,
                                                         comment_sort=args.comment_sort)
-            
+
             with open(output_filepath, 'w') as json_file:
                 json.dump(qna_content, json_file, indent=3)
 
@@ -94,7 +99,8 @@ def generate_reddit_json(args: Namespace) -> NoReturn:
             output_filepath = 'reddit_advice_content.json'
 
             if args.output_folder:
-                output_filepath = join(args.output_folder, 'reddit_qna_content.json')
+                output_filepath = join(
+                    args.output_folder, 'reddit_qna_content.json')
 
             advice_content = content_gen.get_top_advice_posts(sub_name=args.subreddit,
                                                               post_limit=args.post_limit,
@@ -104,7 +110,7 @@ def generate_reddit_json(args: Namespace) -> NoReturn:
                 json.dump(advice_content, json_file, indent=3)
 
         print('Successfully generated reddit content JSON as chosen output folder, please review to finalize text.')
-    
+
     except Exception as err:
         print('---------------------------------------------------')
         print('Exception was raised during the execution of script')

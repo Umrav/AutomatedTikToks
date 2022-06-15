@@ -5,19 +5,19 @@ from os.path import join
 from pathlib import Path
 from random import choice, randrange
 from textwrap import wrap
-from moviepy.editor import * # recommended per moviepy Docs
+from moviepy.editor import *  # recommended per moviepy Docs
 
-# file.write_videofile(video_path, codec='libx264', audo_codec="aac")
 
 class VideoGenerator:
     '''Class based utility that generates TikTok style videos using the given
     baseline videos and audio clips. The class expects that the audio generated
     follows the output outlined in Class AudioGeneration. The system can generate
     videos to provided time limit.'''
+
     def __init__(self, videos_path: str):
         '''Initialize VideoGeneration class and store folder path to
         background filler videos.
-        
+
         :param videos_path: folder location where background videos are stored
         '''
         self.vid_path = videos_path
@@ -25,7 +25,7 @@ class VideoGenerator:
 
     def pick_random_video(self) -> str:
         '''Randomly pick a background file for use in TikTok video.
-        
+
         :return: file path to video randomly chosen
         :raises: ValueError (if no videos exist)
         '''
@@ -50,7 +50,7 @@ class VideoGenerator:
         '''Given the filepath to video file, resize the horizontal video to vertical mode and
         create a random length subclip for use. The length provided is used to find a random subclip.
         The default crop positions center video vertically in the middle of the loaded video.
-        
+
         :param video_filepath: filepath to video that will be loaded and resized
         :param subclip_length: length in seconds of resized video
         :param subclip_volume_multiplier: volume multiplier for clip (default: .2)
@@ -58,12 +58,14 @@ class VideoGenerator:
         :param x2_end: vertical ending position to end crop video (default: 2246.6)
         :param y1_start: horizontal starting position to start crop of video (default: 0)
         :param y2_end: horizonal ending position to end crop of video (default: 1920)
+
         :return: resized video instance
         '''
         video = VideoFileClip(video_filepath)
         # pick a randompoint in the video duration for start of subclip
         # duration is float, so converted to int
-        random_point = randrange(0, int(video.duration) - subclip_length, subclip_length)
+        random_point = randrange(
+            0, int(video.duration) - subclip_length, subclip_length)
 
         # create subclip of loaded video
         subclip = video.subclip(random_point, random_point+subclip_length)
@@ -88,22 +90,25 @@ class VideoGenerator:
         '''Given a VideoFileClip instance that represents the finalized TikTok video,
         write the video to file using the provided output_path. The file defaults to using
         the codecs for mp4.
-        
+
         :param video: finalized VideoFileClip instance
         :param output_path: filepath to write video
         :param video_codec: video codec format for output video (default: libx264)
         :param audio_codec: audito codec format for output video (default: aac)
+
         :return: NoReturn
         '''
-        video.write_videofile(output_path, codec=video_codec, audio_codec=audio_codec)
+        video.write_videofile(
+            output_path, codec=video_codec, audio_codec=audio_codec)
 
     @staticmethod
     def process_text(text: str,
                      char_count) -> str:
         '''Add newlines to text so that textclips generated from the provided text do
         not exceed horizontal width of TikTok video.
-        
+
         :param char_count: count of words before newline is inserted (default: 8)
+
         :return: text with newlines inserted at after each word count
         '''
         text_list = wrap(text, char_count, break_long_words=False)
@@ -114,7 +119,7 @@ class VideoGenerator:
                 final_text = block
             else:
                 final_text = f'{final_text}\n{block}'
-        
+
         return final_text
 
     def write_title_to_video(self,
@@ -124,10 +129,11 @@ class VideoGenerator:
         '''Add reddit post title as an overlay to the provided video. The overlay will be
         added for the audio duration and the audio dat and title text will be taken from the
         provided input.
-        
+
         :param video: video that overlay will be added to
         :param title_info: dict containing the title text and title audio filepath
         :param char_count: count of words before newline is inserted
+
         :return: edited video with overlay of title text & timestamp for when title audio ends
         '''
         processed_text = self.process_text(title_info['text'], char_count)
@@ -147,13 +153,15 @@ class VideoGenerator:
         # add textclip for duration of title audio
         title_duration = title_audioclip.duration
 
-        #setting to harcoded location for stylistic purposes
+        # setting to harcoded location for stylistic purposes
         title_textclip = title_textclip.set_start(0)
         # stylistic add 1 second
-        title_textclip = title_textclip.set_position(('center', 300)).set_duration(title_duration + self.title_buffer)
+        title_textclip = title_textclip.set_position(
+            ('center', 300)).set_duration(title_duration + self.title_buffer)
         title_textclip = title_textclip.set_audio(title_audioclip)
 
-        video = CompositeVideoClip([video, title_textclip]).set_duration(video.duration)
+        video = CompositeVideoClip(
+            [video, title_textclip]).set_duration(video.duration)
 
         return video, title_duration + self.title_buffer
 
@@ -167,14 +175,14 @@ class VideoGenerator:
         '''Add textclips and audio for each text dict defined in the provided list
         to the video clip. The offset is used to start inserting the text clips up to
         the max video length, all other text from list are discarded once the max vid length is reached.
-        
+
         :param video: background video with title text and audio integrated
         :param title_offset: timestamp for end of title audio (used to start inserting text audios)
         :param texts_list: list of dict containing text and audio filepath
         :param max_vid_length: maximum length in seconds that video can be
         :param char_count: count of words before newline is inserted
         :param time_offset: seconds to wait between each text block
-        
+
         :return: edited video containing the text & audio trimmed to final length of all audio
         '''
         # starting offset for text audio at title offset
@@ -205,8 +213,9 @@ class VideoGenerator:
                 text_vidclip = text_vidclip.set_start(current_text_offset)
 
                 # set position of the clip and set duration to be length of audio
-                text_vidclip = text_vidclip.set_position(('center', 320)).set_duration(text_duration)
-                
+                text_vidclip = text_vidclip.set_position(
+                    ('center', 320)).set_duration(text_duration)
+
                 # append to the text clip list
                 text_clips.append(text_vidclip)
 
@@ -217,10 +226,10 @@ class VideoGenerator:
             .set_duration(min(current_text_offset, video.duration))
 
         return video
-    
+
     def preview_clip(self, video: VideoFileClip, timestamp: int = 0) -> NoReturn:
         '''Generate a png from the videoclip for testing/ quality control at provided time stamp.
-        
+
         :param video: videofile to get static frame at provided timeframe
         :param timestamp: timestamp in seconds to capture still frame
         '''
@@ -231,7 +240,7 @@ class VideoGenerator:
         '''Function to create a filename for the output video file. The finalname is appended
         with the day, month, year, hr and min to ensure that when multiple vids are created in a
         run, the files arent overwritten.
-        
+
         :param type: type of video (qna or advice)
         :return: unique timestamped filename for output tiktok video
         '''
@@ -248,37 +257,39 @@ class VideoGenerator:
         folder and the video is edited to include both the text and audio from the
         submission information. The function also ensures that the output video doesnt exceed
         the max video length provided.
-        
+
         :param submission: audio enriched submission dict generated by AudioGenerator
         :param output_folder: folder to store finalized TikTok video
         :param char_count: count of words before newline is inserted (default: 30)
         :param max_vid_length: maximum video length in seconds (default: 120)
+
         :return: NoReturn
         '''
         # choose random background video
         background_video = self.pick_random_video()
 
         # crop randomly chosen video to input length and resize to vertical video
-        cropped_video = self.crop_video_to_tiktok_format(background_video, max_vid_length)
+        cropped_video = self.crop_video_to_tiktok_format(
+            background_video, max_vid_length)
 
         # get video with title text and audio inserted along with title offset
         title_edited_vid, title_duration = self.write_title_to_video(cropped_video,
                                                                      submission['title'],
                                                                      char_count=char_count)
-        
+
         # get video with comment text and audio inserted
         final_video = self.write_multi_text_to_video(title_edited_vid,
                                                      title_duration,
                                                      submission['comments'],
                                                      max_vid_length,
                                                      char_count,
-                                                     .5) # wait .5 seconds between answers
+                                                     .5)  # wait .5 seconds between answers
 
         # create final filepath to output video & write to file
         output_filepath = join(output_folder, self.make_filename('qna'))
 
         self.write_tiktok_video_to_file(final_video, output_filepath)
-    
+
     def generate_video_from_advice_submission(self,
                                               submission: Dict[str, Union[Dict, List[Dict[str, str]]]],
                                               output_folder: str,
@@ -290,31 +301,33 @@ class VideoGenerator:
         The background video is randomly chosen from provided folder and the video is edited
         to include both the text and audio from the submission information.
         The function also ensures that the output video doesnt exceed the max video length provided.
-        
+
         :param submission: audio enriched submission dict generated by AudioGenerator
         :param output_folder: folder to store finalized TikTok video
         :param char_count: count of words before newline is inserted (default: 30)
         :param max_vid_length: maximum video length in seconds (default: 180)
+
         :return: NoReturn
         '''
         # choose random background video
         background_video = self.pick_random_video()
 
         # crop randomly chosen video to input length and resize to vertical video
-        cropped_video = self.crop_video_to_tiktok_format(background_video, max_vid_length)
+        cropped_video = self.crop_video_to_tiktok_format(
+            background_video, max_vid_length)
 
         # get video with title text and audio inserted along with title offset
         title_edited_vid, title_duration = self.write_title_to_video(cropped_video,
                                                                      submission['title'],
                                                                      char_count=char_count)
-        
+
         # get video with postbody texts and audio inserted at title offset
         final_video = self.write_multi_text_to_video(title_edited_vid,
                                                      title_duration,
                                                      submission['postbody'],
                                                      max_vid_length,
                                                      char_count,
-                                                     .1) # wait .1 seconds between chunks
+                                                     .1)  # wait .1 seconds between chunks
 
         # create final filepath to output video & write to file
         output_filepath = join(output_folder, self.make_filename('advice'))
