@@ -14,3 +14,5 @@ AutomatedTikToks.code-workspace
 *.json
 !secrets/default_credentials.json
 create_content.py
+.DS_Store
+*.txt

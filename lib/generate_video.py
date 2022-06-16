@@ -22,6 +22,7 @@ class VideoGenerator:
         '''
         self.vid_path = videos_path
         self.title_buffer = .8
+        self.last_used_vid_filename = 'last_used.txt'
 
     def pick_random_video(self) -> str:
         '''Randomly pick a background file for use in TikTok video.
@@ -30,14 +31,30 @@ class VideoGenerator:
         :raises: ValueError (if no videos exist)
         '''
         video_files = []
-        for maybe_file in listdir(self.vid_path):
-            if maybe_file.endswith('.mp4'):
-                video_files.append(maybe_file)
+        for maybe_vid in listdir(self.vid_path):
+            if maybe_vid.endswith('.mp4'):
+                video_files.append(maybe_vid)
 
         if not video_files:
             raise ValueError(f'There are no .mp4 files in {self.vid_path}')
 
-        return join(self.vid_path, choice(video_files))
+        try:
+            # to avoid repeated video content, check txt file for last used vid name
+            with open(join(self.vid_path, self.last_used_vid_filename), 'r') as txt_file:
+                last_video_file_used = txt_file.read().strip()
+            video_files = list(
+                filter(lambda vid: vid != last_video_file_used, video_files))
+        except IOError:
+            # first time run or new video folder, ignore error
+            pass
+
+        chosen_video = choice(video_files)
+
+        # write vid name to txt file to avoid repeat background videos
+        with open(join(self.vid_path, self.last_used_vid_filename), 'w') as txt_file:
+            txt_file.write(chosen_video)
+
+        return join(self.vid_path, chosen_video)
 
     def crop_video_to_tiktok_format(self,
                                     video_filepath: str,
