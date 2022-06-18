@@ -14,14 +14,19 @@ class VideoGenerator:
     follows the output outlined in Class AudioGeneration. The system can generate
     videos to provided time limit.'''
 
-    def __init__(self, videos_path: str):
+    def __init__(self,
+                 videos_path: str,
+                 title_buffer: float = .8):
         '''Initialize VideoGeneration class and store folder path to
         background filler videos.
 
         :param videos_path: folder location where background videos are stored
+        :param title_buffer: seconds to wait before title is removed to screen after
+                             being read. (default: .8)
         '''
         self.vid_path = videos_path
-        self.title_buffer = .8
+        self.title_buffer = title_buffer
+        # hardcoded (doesnt really need to be configurable)
         self.last_used_vid_filename = 'last_used.txt'
 
     def pick_random_video(self) -> str:
@@ -139,6 +144,39 @@ class VideoGenerator:
 
         return final_text
 
+    def add_ending_message(self,
+                           video: VideoFileClip,
+                           lst_msg_timestamp: float,
+                           end_msg: str = "Like\n&\nFollow\nfor more!") -> VideoFileClip:
+        '''Add an ending animation message to videos to invite viewers to like &
+        follow the video. A default msg is used if none is provided.
+
+        :param video: edited video with reddit text overlayed on the video
+        :param lst_msg_timestamp: last reddit text message's end timestamp
+        :param end_msg: what message to put at the end of video (default: "Like & Follow for more!")
+        :return: finalized video with ending msg added
+        '''
+        video_duration = video.duration
+        # ending credit time length, tries to be 3 seconds
+        end_msg_duration = min(video_duration-lst_msg_timestamp, 3)
+
+        endmsg_textclip = TextClip(end_msg,
+                                   fontsize=150,
+                                   font='Calibri-Bold',
+                                   align='center',
+                                   color='white',
+                                   stroke_color='black',
+                                   stroke_width=2,
+                                   method='label')
+        # set textclip position in timeline and on screen
+        endmsg_textclip = endmsg_textclip.set_pos(('center', 500))
+        endmsg_textclip = endmsg_textclip.set_start(lst_msg_timestamp)
+
+        video = CompositeVideoClip(
+            [video, endmsg_textclip]).set_duration(lst_msg_timestamp+end_msg_duration)
+
+        return video
+
     def write_title_to_video(self,
                              video: VideoFileClip,
                              title_info: Dict[str, str],
@@ -239,9 +277,11 @@ class VideoGenerator:
                 # add audio length to offset for next text to be processed, adding smaller buffer
                 current_text_offset += text_duration + time_offset
 
-        video = CompositeVideoClip([video, *text_clips])\
-            .set_duration(min(current_text_offset, video.duration))
+        video = CompositeVideoClip(
+            [video, *text_clips]).set_duration(video.duration)
 
+        video = self.add_ending_message(video,
+                                        current_text_offset)
         return video
 
     def preview_clip(self, video: VideoFileClip, timestamp: int = 0) -> NoReturn:
