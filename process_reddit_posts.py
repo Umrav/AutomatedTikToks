@@ -52,7 +52,7 @@ def create_parser() -> ArgumentParser:
                         help='number of upvotes required before comment is considered (QnA only)')
     parser.add_argument('--comment_char_limit',
                         type=int,
-                        default=250,
+                        default=300,
                         help='character limit for comments to be considered (QnA only)')
     parser.add_argument('--comment_sort',
                         type=str,

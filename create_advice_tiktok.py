@@ -34,7 +34,7 @@ def create_parser() -> ArgumentParser:
                         type=str,
                         help='folder path to store audio & video for TikTok')
     parser.add_argument('--char_count',
-                        default=30,
+                        default=24,
                         type=int,
                         help='count of characters before newlines are added in video text subtitle')
     parser.add_argument('--max_vid_length',
