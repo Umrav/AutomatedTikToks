@@ -149,7 +149,8 @@ class VideoGenerator:
                            lst_msg_timestamp: float,
                            end_msg: str = "Like\n&\nFollow\nfor more!") -> VideoFileClip:
         '''Add an ending animation message to videos to invite viewers to like &
-        follow the video. A default msg is used if none is provided.
+        follow the video. A default msg is used if none is provided and its shown for the
+        minimum of 3 seconds or time left before max_vid_length input.
 
         :param video: edited video with reddit text overlayed on the video
         :param lst_msg_timestamp: last reddit text message's end timestamp
