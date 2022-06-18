@@ -30,7 +30,7 @@ Then, install the required packages by running the following command.
 pip install -r requirements/requirements.txt
 ```
 
-Finally, please insure that you have the following programs installed (needed for [moviepy](https://zulko.github.io/moviepy/install.html)
+Finally, please insure that you have the following programs installed, needed for [moviepy](https://zulko.github.io/moviepy/install.html)
 
 ```
 ffmpeg
@@ -76,7 +76,9 @@ Look through the json to edit/ remove comments/ postbody that you deem not inter
 
 ## Generating the Video
 
-Depending on if you created a `qna` or `advice` json, run the corresponding video scripts, `create_qna_tiktok.py` or `create_advice_tiktok.py` respectively. The output video will be stored by default in the `output` folder. There are several configurable attributes to the video which be viewed using the following cmds.
+Depending on if you created a `qna` or `advice` json, run the corresponding video scripts, `create_qna_tiktok.py` or `create_advice_tiktok.py` respectively.
+
+The output video will be stored by default in the `output` folder. There are several configurable attributes to the video which be viewed using the following cmds.
 
 ```
 python create_qna_tiktok.py --help
